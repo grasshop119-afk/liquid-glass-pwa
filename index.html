@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <!-- Метатеги для чистого нативного вида в iOS Safari и Android Chrome -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,14 +10,10 @@
   <link rel="manifest" href="manifest.json">
   <title>Liquid Glass Showcase</title>
 
-  <!-- Telegram WebApp SDK для тактильной отдачи Taptic Engine -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <style>
     :root {
       --bg: #000000;
-      --accent: #0A84FF;
-      --text-dim: rgba(255, 255, 255, 0.45);
+      --tab-bar-bg: rgba(22, 22, 26, 0.65);
     }
 
     * {
@@ -42,8 +37,8 @@
       position: relative;
     }
 
-    /* Фоновые живые градиенты — свет под ними преломляется сквозь жидкое стекло */
-    .ambient-background {
+    /* Фоновые яркие элементы (как на референсе Apple), чтобы было видно преломление стекла */
+    .ambient-canvas {
       position: absolute;
       inset: 0;
       pointer-events: none;
@@ -51,165 +46,150 @@
       overflow: hidden;
     }
 
-    .ambient-blob {
+    .glow-orb {
       position: absolute;
       border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.35;
-      animation: float 14s infinite alternate ease-in-out;
+      filter: blur(55px);
+      opacity: 0.7;
+      animation: pulseFloat 10s infinite alternate ease-in-out;
     }
 
-    .blob-1 {
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, #ff5e3a, #ff2a6d);
-      bottom: -60px;
-      left: -40px;
-    }
-
-    .blob-2 {
+    .orb-orange {
       width: 280px;
       height: 280px;
-      background: radial-gradient(circle, #007aff, #5ac8fa);
+      background: radial-gradient(circle, #FF9500, #FF2D55);
+      bottom: -40px;
+      left: 10%;
+    }
+
+    .orb-blue {
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, #0A84FF, #5E5CE6);
       bottom: -20px;
-      right: -30px;
-      animation-delay: -5s;
+      right: 12%;
+      animation-delay: -4s;
     }
 
-    .blob-3 {
-      width: 220px;
-      height: 220px;
-      background: radial-gradient(circle, #ffd60a, #ff9f0a);
-      bottom: 60px;
-      left: 35%;
-      opacity: 0.22;
-      animation-delay: -8s;
+    .orb-cyan {
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, #64D2FF, #30D158);
+      bottom: 70px;
+      left: 42%;
+      opacity: 0.5;
+      animation-delay: -7s;
     }
 
-    @keyframes float {
+    @keyframes pulseFloat {
       0% { transform: translateY(0) scale(1); }
-      100% { transform: translateY(-40px) scale(1.15); }
+      100% { transform: translateY(-30px) scale(1.12); }
     }
 
-    /* Индикатор контента */
-    .header-hint {
+    .title-badge {
       position: relative;
       z-index: 1;
-      margin-top: calc(env(safe-area-inset-top) + 24px);
+      margin-top: calc(env(safe-area-inset-top, 20px) + 24px);
       color: rgba(255, 255, 255, 0.4);
       font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.5px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
     }
 
-    /* Контейнер панели */
     .tab-bar-container {
       position: relative;
       z-index: 10;
       width: 92%;
-      max-width: 410px;
-      margin-bottom: calc(16px + env(safe-area-inset-bottom));
+      max-width: 420px;
+      margin-bottom: calc(18px + env(safe-area-inset-bottom, 15px));
     }
 
     /* 
-      1. КОРПУС ТАББАРА — ГЛУБОКОЕ МАТОВОЕ СТЕКЛО (FROSTED LIQUID BASE)
-      Использует тройной каустический ободок + рассеивание
+      1. БАЗОВЫЙ ТАББАР — МАТОВОЕ ТОЛСТОЕ СТЕКЛО 
+      (Двойная оптическая кромка + глубокое преломление)
     */
-    .liquid-tab-bar {
+    .ios-glass-bar {
       position: relative;
       width: 100%;
-      height: 70px;
+      height: 72px;
       border-radius: 40px;
       display: flex;
       align-items: center;
       justify-content: space-around;
-      padding: 5px;
+      padding: 6px;
 
-      /* Физическое стекло: преломление + ультра-глубокое размытие */
-      background: rgba(20, 20, 24, 0.55);
-      backdrop-filter: blur(40px) saturate(210%);
-      -webkit-backdrop-filter: blur(40px) saturate(210%);
+      background: var(--tab-bar-bg);
+      backdrop-filter: blur(35px) saturate(210%);
+      -webkit-backdrop-filter: blur(35px) saturate(210%);
 
-      /* Объемная стеклянная кромка (Bevel highlight): сверху свет падает ярче */
+      /* Объемный стеклянный обод: сверху падает яркий свет, снизу тень */
       box-shadow: 
-        inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.38),
+        inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.35),
         inset 0 -1.5px 1px 0 rgba(255, 255, 255, 0.08),
-        inset 0 0 18px 0 rgba(255, 255, 255, 0.04),
-        0 20px 45px rgba(0, 0, 0, 0.8),
+        inset 0 0 20px 0 rgba(255, 255, 255, 0.03),
+        0 24px 48px rgba(0, 0, 0, 0.75),
         0 4px 12px rgba(0, 0, 0, 0.5);
-      border: 0.5px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.14);
     }
 
     /* 
-      2. БЕГУНОК-КАПЛЯ — ЧИСТОЕ ОПТИЧЕСКОЕ ЖИДКОЕ СТЕКЛО (LIQUID DROPLET)
-      Здесь достигается эффект выпуклой линзы со сдвигом света
+      2. БЕГУНОК-КАПЛЯ — ТО САМОЕ ЖИДКОЕ СТЕКЛО (LIQUID GLASS DROP)
+      Выпуклая линза с яркой каустикой и 3D-бликом
     */
     .liquid-droplet {
       position: absolute;
-      top: 5px;
-      left: 5px;
-      height: calc(100% - 10px);
-      border-radius: 35px;
+      top: 6px;
+      left: 6px;
+      height: calc(100% - 12px);
+      border-radius: 32px;
       pointer-events: none;
       z-index: 2;
       box-sizing: border-box;
-      transform-origin: center center;
 
-      /* Оптический эффект линзы через встроенный шейдер преломления */
-      backdrop-filter: url(#liquid-refraction) blur(8px) saturate(220%) brightness(1.2);
-      -webkit-backdrop-filter: blur(8px) saturate(220%) brightness(1.2);
+      /* Линзовое осветление и четкое размытие */
+      backdrop-filter: blur(14px) brightness(1.25) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) brightness(1.25) saturate(180%);
 
-      /* Желейный стеклянный градиент с каустикой */
+      /* Градиент преломления света в толще линзы */
       background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.42) 0%,
-        rgba(255, 255, 255, 0.14) 40%,
-        rgba(255, 255, 255, 0.04) 70%,
-        rgba(255, 255, 255, 0.22) 100%
+        rgba(255, 255, 255, 0.40) 0%,
+        rgba(255, 255, 255, 0.12) 45%,
+        rgba(255, 255, 255, 0.05) 75%,
+        rgba(255, 255, 255, 0.25) 100%
       );
 
-      /* Линзовый кант, внутренний фокус света и стеклянный контур */
-      border: 1px solid rgba(255, 255, 255, 0.55);
+      /* Оптические фаски: сияющий верхний край и темная линзовая глубина */
+      border: 1px solid rgba(255, 255, 255, 0.65);
       box-shadow: 
-        inset 0 2px 4px rgba(255, 255, 255, 0.75),
-        inset 0 -2px 5px rgba(0, 0, 0, 0.35),
-        inset 0 0 12px rgba(255, 255, 255, 0.3),
-        0 8px 24px -2px rgba(0, 0, 0, 0.55),
-        0 2px 6px rgba(0, 122, 255, 0.25);
+        inset 0 2px 2px rgba(255, 255, 255, 0.85),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.35),
+        inset 0 0 10px rgba(255, 255, 255, 0.3),
+        0 10px 22px rgba(0, 0, 0, 0.5),
+        0 2px 6px rgba(10, 132, 255, 0.3);
 
-      will-change: transform, left, width;
-      transition: background 0.2s ease, border-color 0.2s ease;
+      will-change: left, width, transform;
+      transform-origin: center center;
+      transition: border-color 0.18s ease;
     }
 
-    /* Верхний глянцевый блик на куполе капли (Specular Reflection) */
+    /* Верхний дуговой блик стекла (Gloss Highlight) */
     .liquid-droplet::after {
       content: '';
       position: absolute;
       top: 2px;
-      left: 12%;
-      width: 76%;
-      height: 45%;
+      left: 10%;
+      width: 80%;
+      height: 42%;
       border-radius: 20px 20px 30px 30px;
       background: linear-gradient(
         to bottom,
-        rgba(255, 255, 255, 0.65) 0%,
-        rgba(255, 255, 255, 0.12) 65%,
+        rgba(255, 255, 255, 0.7) 0%,
+        rgba(255, 255, 255, 0.1) 70%,
         transparent 100%
       );
       pointer-events: none;
-      filter: blur(0.5px);
-    }
-
-    /* В состоянии растягивания в полете капля становится более прозрачной и линзовой */
-    .liquid-droplet.stretching {
-      background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.28) 0%,
-        rgba(255, 255, 255, 0.06) 50%,
-        rgba(255, 255, 255, 0.18) 100%
-      );
-      border-color: rgba(255, 255, 255, 0.75);
     }
 
     /* Элементы таббара */
@@ -224,19 +204,20 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 4px;
       cursor: pointer;
       outline: none;
+      padding: 0;
     }
 
     .icon-box {
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--text-dim);
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease;
+      color: rgba(255, 255, 255, 0.45);
+      transition: color 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .icon-box svg {
@@ -245,96 +226,79 @@
       fill: currentColor;
     }
 
-    .tab-title {
+    .tab-label {
       font-size: 11px;
-      font-weight: 600;
-      color: var(--text-dim);
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.45);
       letter-spacing: -0.1px;
-      transition: color 0.25s ease, transform 0.3s ease;
+      transition: color 0.25s ease;
     }
 
-    /* Активное состояние */
+    /* Активное состояние кнопки */
     .tab-item.active .icon-box {
       color: #FFFFFF;
-      transform: translateY(-2px) scale(1.08);
-      filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.45));
+      transform: translateY(-2px) scale(1.1);
+      filter: drop-shadow(0 2px 6px rgba(255, 255, 255, 0.4));
     }
 
-    .tab-item.active .tab-title {
+    .tab-item.active .tab-label {
       color: #FFFFFF;
-      font-weight: 700;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
 
-  <!-- SVG Шейдер оптической рефракции (преломляет свет как настоящее стекло) -->
-  <svg style="position: fixed; top: -9999px; left: -9999px; width: 0; height: 0;" aria-hidden="true">
-    <filter id="liquid-refraction" x="-20%" y="-20%" width="140%" height="140%">
-      <!-- Создание карты нормалей выпуклой линзы -->
-      <feTurbulence type="fractalNoise" baseFrequency="0.015 0.015" numOctaves="1" result="noise" />
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-  </svg>
-
-  <div class="ambient-background">
-    <div class="ambient-blob blob-1"></div>
-    <div class="ambient-blob blob-2"></div>
-    <div class="ambient-blob blob-3"></div>
+  <!-- Фоновые градиентные сферы -->
+  <div class="ambient-canvas">
+    <div class="glow-orb orb-orange"></div>
+    <div class="glow-orb orb-blue"></div>
+    <div class="glow-orb orb-cyan"></div>
   </div>
 
-  <div class="header-hint">Liquid Glass Showcase</div>
+  <div class="title-badge">Liquid Glass Showcase</div>
 
   <div class="tab-bar-container">
-    <nav class="liquid-tab-bar" id="tabBar">
-      <!-- Та самая оптическая капля -->
+    <nav class="ios-glass-bar" id="tabBar">
+      <!-- Капля-линза -->
       <div class="liquid-droplet" id="droplet"></div>
 
-      <!-- Вкладка 1 -->
       <button class="tab-item active" data-index="0">
         <div class="icon-box">
           <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         </div>
-        <span class="tab-title">Главная</span>
+        <span class="tab-label">Главная</span>
       </button>
 
-      <!-- Вкладка 2 -->
       <button class="tab-item" data-index="1">
         <div class="icon-box">
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
         </div>
-        <span class="tab-title">Медиа</span>
+        <span class="tab-label">Медиа</span>
       </button>
 
-      <!-- Вкладка 3 -->
       <button class="tab-item" data-index="2">
         <div class="icon-box">
           <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         </div>
-        <span class="tab-title">Избранное</span>
+        <span class="tab-label">Любимое</span>
       </button>
 
-      <!-- Вкладка 4 -->
       <button class="tab-item" data-index="3">
         <div class="icon-box">
           <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
         </div>
-        <span class="tab-title">Опции</span>
+        <span class="tab-label">Опции</span>
       </button>
     </nav>
   </div>
 
   <script>
-    /* 
-      ДВУХРЕБЕРНАЯ ГИДРОДИНАМИКА КАПЛИ (VISCOUS LIQUID SPRING)
-      Капля ведет себя как вязкая жидкость: передний край вытягивается вперед,
-      хвост подтягивается с запозданием, создавая естественный желеобразный перетек.
-    */
     const droplet = document.getElementById('droplet');
     const tabs = document.querySelectorAll('.tab-item');
 
-    // Физика пружины
-    const SPRING = { tension: 340, friction: 28, mass: 1 };
+    // Физика пружины для гидродинамического перетекания капли
+    const SPRING = { tension: 320, friction: 27, mass: 1 };
 
     let state = {
       leadX: 0, targetLeadX: 0, vLead: 0,
@@ -354,7 +318,7 @@
     }
 
     function animate() {
-      // 1. Пружиним передний и задний край раздельно (вязкое натяжение)
+      // 1. Передний и задний края капли движутся независимо (эффект текучей жидкости)
       [state.leadX, state.vLead] = springStep(
         state.leadX, state.targetLeadX, state.vLead, 
         SPRING.tension * 1.1, SPRING.friction * 0.95, SPRING.mass
@@ -365,27 +329,19 @@
         SPRING.tension * 0.85, SPRING.friction * 1.05, SPRING.mass
       );
 
-      // Вычисление текущего левого края и ширины растянутой капли
       const minX = Math.min(state.leadX, state.trailX);
       const maxX = Math.max(state.leadX, state.trailX);
       const width = maxX - minX;
 
-      // 2. Деформация по вертикали: при растяжении в длину капля утончается
+      // 2. В полете капля слегка утончается по высоте (эффект поверхностного натяжения)
       const stretch = Math.abs(state.leadX - state.trailX);
-      if (stretch > 18) {
-        state.targetScaleY = 0.88; // сжимаем по высоте как реальную каплю
-        droplet.classList.add('stretching');
-      } else {
-        state.targetScaleY = 1.0;
-        droplet.classList.remove('stretching');
-      }
+      state.targetScaleY = stretch > 20 ? 0.90 : 1.0;
 
       [state.scaleY, state.vScaleY] = springStep(
         state.scaleY, state.targetScaleY, state.vScaleY, 
-        280, 20, 1
+        280, 22, 1
       );
 
-      // Применение рассчитанных координат к капле
       droplet.style.left = `${minX}px`;
       droplet.style.width = `${width}px`;
       droplet.style.transform = `scaleY(${state.scaleY})`;
@@ -395,7 +351,6 @@
         requestAnimationFrame(animate);
       } else {
         state.isMoving = false;
-        droplet.classList.remove('stretching');
       }
     }
 
@@ -417,25 +372,20 @@
         return;
       }
 
-      // Направление движения для правильного «выстреливания» капли
       if (targetX > state.trailX) {
-        // Движение вправо: передний край летит первым
         state.targetLeadX = targetX + targetW;
         state.targetTrailX = targetX;
       } else {
-        // Движение влево: задний край летит первым
         state.targetTrailX = targetX;
         state.targetLeadX = targetX + targetW;
       }
 
       state.currentIndex = idx;
 
-      // Taptic Feedback (если запущено в Telegram или поддерживается вибрация)
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        Telegram.WebApp.HapticFeedback.selectionChanged();
-      } else if (navigator.vibrate) {
-        navigator.vibrate(8);
-      }
+      // Безопасная вибрация (если доступна)
+      try {
+        if (window.navigator?.vibrate) navigator.vibrate(8);
+      } catch (e) {}
 
       if (!state.isMoving) {
         state.isMoving = true;
@@ -447,15 +397,15 @@
       tab.addEventListener('click', () => setActiveTab(tab));
     });
 
-    // Инициализация при старте
-    window.addEventListener('DOMContentLoaded', () => {
+    // Инициализация
+    window.addEventListener('load', () => {
       const active = document.querySelector('.tab-item.active');
-      setActiveTab(active, true);
+      if (active) setActiveTab(active, true);
     });
 
-    // Регистрация Service Worker для PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(console.error);
+    // Безопасная регистрация Service Worker только по HTTP/HTTPS (не в file://)
+    if (location.protocol.startsWith('http') && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
   </script>
 </body>
